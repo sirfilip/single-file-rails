@@ -24,6 +24,11 @@ class ThingsController < ActionController::Base
 
 end
 
+puts ::DATA.read
+
 App.initialize!
 
-run App
+Rack::Handler::WEBrick.run App
+
+__END__
+@layout.erb
