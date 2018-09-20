@@ -11,6 +11,8 @@ class App < Rails::Application
     get '/hello' => proc{|env| [200, {'Content-type' => 'text/plain'}, ['Hello Again']]}
 
     get '/thing' => 'things#index'
+
+    get '/page' => 'things#page'
   end
 
 
@@ -24,11 +26,40 @@ class ThingsController < ActionController::Base
 
 end
 
-puts ::DATA.read
+def templates
+  @templates ||= begin 
+                   templates = {}
+                   template = nil
+                   lines = 0
+                   DATA.each_line do |line|
+                     lines += 1
+                     if line =~ /^@@\s*(.*\S)\s*$/
+                       template = ''
+                       templates[$1.to_sym] = template
+                     elsif template
+                       template << line
+                     end
+                   end
+                   templates
+                 end
+end
 
 App.initialize!
 
 Rack::Handler::WEBrick.run App
 
 __END__
-@layout.erb
+@@ layout
+<!doctype html>
+<html>
+<head>
+  <title>The App</title>
+</head>
+<body>
+  <%= yield %>
+</body>
+</html>
+
+@@ index
+The body!
+
